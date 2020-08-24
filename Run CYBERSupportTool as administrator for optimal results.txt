@@ -1,0 +1,1 @@
+This tool needs to be run as administrator, because CAVaultManager requires the escalated privileges to generate the DiagnoseDBReport.
