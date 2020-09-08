@@ -78,19 +78,19 @@ Function Get-InstallPath
 # Get Script Location 
 $ScriptLocation = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-Log-Msg -MSG "Collecting DR Files" -Type Debug
-Log-Msg -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage -MSG "Collecting DR Files" -Type Debug
+Write-LogMessage -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrVaultFilePaths = @()
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting DR file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting DR file versions and additional information" -Type Debug
 $PADRVersions = "$DestFolderPath\_PADRFileVersions.txt"
 "PADR:"+$(Get-FileVersion "$ComponentPath\PADR.exe") | Out-File $PADRVersions
 $DRVersion = $(Get-Content $DestFolderPath\_PADRFileVersions.txt | Where-Object { $_.Contains("PADR:") }).Replace(".","")
 $MyVerson = $DRVersion.Split(":")
 $CompVer = $MyVerson[1].Substring(0,4)
-Log-Msg -MSG "Collecting DR files list by timeframe" -Type Debug
+Write-LogMessage -MSG "Collecting DR files list by timeframe" -Type Debug
 $arrVaultFilePaths += $PADRVersions
 $REGKEY_DR = "CyberArk Vault Disaster Recovery"
 #
@@ -121,4 +121,4 @@ If ($CompVer -ge 1005) {
 }
 
 Collect-Files -arrFilesPath $arrVaultFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting Vault Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting Vault Files" -Type Debug

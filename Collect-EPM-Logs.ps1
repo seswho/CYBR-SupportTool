@@ -86,13 +86,13 @@ Function Get-IniContent
     return $ini
 }
 
-Log-Msg -MSG "Collecting EPM Files" -Type Debug
-Log-Msg -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage -MSG "Collecting EPM Files" -Type Debug
+Write-LogMessage -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrEPMFilePaths = @()
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting EPM file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting EPM file versions and additional information" -Type Debug
 $EPMVersions = "$DestFolderPath\_EPMFileVersions.txt"
 "EPM: "+$(Get-FileVersion "$ComponentPath\VfBackgroundWorker.exe") | Out-File $EPMVersions
 $EPMLogFolder = "$ComponentPath\Log"
@@ -105,7 +105,7 @@ If (Test-Path $MSSQL.Path)
 	"MSSQL: "+$(Get-FileVersion $MSSQL.Path) | Out-File $EPMVersions
 }
 
-Log-Msg -MSG "Collecting EPM files list by timeframe" -Type Debug
+Write-LogMessage -MSG "Collecting EPM files list by timeframe" -Type Debug
 $arrEPMFilePaths += $EPMVersions
 # Check that the logs folder is not empty
 If(([string]::IsNullOrEmpty($EPMLogFolder) -ne $true) -and (Test-Path $EPMLogFolder))
@@ -115,7 +115,7 @@ If(([string]::IsNullOrEmpty($EPMLogFolder) -ne $true) -and (Test-Path $EPMLogFol
 }
 else
 {
-	Log-Msg -MSG "EPM Logs folder returned empty" -Error -Type Debug 
+	Write-LogMessage -MSG "EPM Logs folder returned empty" -Error -Type Debug 
 }
 # Check that the trace folder is not empty
 If(([string]::IsNullOrEmpty($EPMTraceFolder) -ne $true) -and (Test-Path $EPMTraceFolder))
@@ -125,8 +125,8 @@ If(([string]::IsNullOrEmpty($EPMTraceFolder) -ne $true) -and (Test-Path $EPMTrac
 }
 else
 {
-	Log-Msg -MSG "EPM trace folder returned empty" -Error -Type Debug 
+	Write-LogMessage -MSG "EPM trace folder returned empty" -Error -Type Debug 
 }
 
 Collect-Files -arrFilesPath $arrEPMFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting EPM Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting EPM Files" -Type Debug

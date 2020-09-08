@@ -97,20 +97,20 @@ Function Get-DEPSettings
 	return $retDEPSettings
 }
 
-Log-Msg -MSG "Collecting CPM Files" -Type Debug
-Log-Msg -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage -MSG "Collecting CPM Files" -Type Debug
+Write-LogMessage -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrCPMFilePaths = @()
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting CPM file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting CPM file versions and additional information" -Type Debug
 $cpmVersions = "$DestFolderPath\_CPMFileVersions.txt"
 "CPM:"+$(Get-FileVersion "$ComponentPath\PMEngine.exe") | Out-File $cpmVersions
 "PMTerminal:"+$(Get-FileVersion "$ComponentPath\bin\PMTerminal.exe") | Out-File $cpmVersions -append
 "PLink:"+$(Get-FileVersion "$ComponentPath\bin\plink.exe") | Out-File $cpmVersions -append
 "DEP settings:"+$(Get-DEPSettings) | Out-File $cpmVersions -append
 
-Log-Msg -MSG "Collecting CPM files list by timeframe" -Type Debug
+Write-LogMessage -MSG "Collecting CPM files list by timeframe" -Type Debug
 $arrCPMFilePaths += (Get-FilePath "$ComponentPath\Vault\Vault.ini")
 $arrCPMFilePaths += $cpmVersions
 $arrCPMFilePaths += (Get-FilePath "$ComponentPath\Logs\*.log")
@@ -129,4 +129,4 @@ $arrCPMFilePaths += (Get-FilesByTimeframe -Path "$ComponentPath\Logs\History\*.l
 
 
 Collect-Files -arrFilesPath $arrCPMFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting CPM Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting CPM Files" -Type Debug

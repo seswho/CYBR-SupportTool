@@ -89,19 +89,19 @@ Function Get-IniContent
     return $ini
 }
 
-Log-Msg -MSG "Collecting PSM Files" -Type Debug
-Log-Msg -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage -MSG "Collecting PSM Files" -Type Debug
+Write-LogMessage -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrPSMFilePaths = @()
 
 # Parse the PSM INI configuration file
-Log-Msg -MSG "Parsing PSM configuration file ($ComponentPath\basic_psm.ini)" -Type Debug
+Write-LogMessage -MSG "Parsing PSM configuration file ($ComponentPath\basic_psm.ini)" -Type Debug
 $psmINI = Get-IniContent "$ComponentPath\basic_psm.ini"
 $PSMLogFolder = (Get-FilePath $psmINI["Main"]["LogsFolder"].Replace('"',""))
 $PSMVaultPath = (Get-FilePath $psmINI["Main"]["PSMVaultFile"].Replace('"',""))
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting PSM file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting PSM file versions and additional information" -Type Debug
 $PSMVersions = "$DestFolderPath\_PSMFileVersions.txt"
 "PSM: "+$(Get-FileVersion "$ComponentPath\CAPSM.exe") | Out-File $PSMVersions
 "Configuration Safe: "+$($psmINI["Main"]["ConfigurationSafe"]) | Out-File $PSMVersions -append
@@ -113,14 +113,14 @@ $arrPSMFilePaths += $PSMVersions
 
 #
 # Collect the files from the Hardening folder
-Log-Msg -MSG "Collecting PSM hardening files" -Type Debug
+Write-LogMessage -MSG "Collecting PSM hardening files" -Type Debug
 $arrPSMFilePaths += (Get-FilePath "$ComponentPath\Hardening\*.log")
 $arrPSMFilePaths += (Get-FilePath "$ComponentPath\Hardening\*.csv")
 $arrPSMFilePaths += (Get-FilePath "$ComponentPath\Hardening\PSMConfigureAppLocker.*")
 $arrPSMFilePaths += (Get-FilePath "$ComponentPath\Hardening\PSMHardening.ps1")
 
 # Check that the logs folder is not empty
-Log-Msg -MSG "Collecting PSM files list by timeframe" -Type Debug
+Write-LogMessage -MSG "Collecting PSM files list by timeframe" -Type Debug
 If(([string]::IsNullOrEmpty($PSMLogFolder) -ne $true) -and (Test-Path $PSMLogFolder))
 {
 	$arrPSMFilePaths += (Get-FilePath "$PSMLogFolder\PSMConsole.log")
@@ -131,7 +131,7 @@ If(([string]::IsNullOrEmpty($PSMLogFolder) -ne $true) -and (Test-Path $PSMLogFol
 }
 else
 {
-	Log-Msg -MSG "PSM Logs folder returned empty" -Error -Type Debug 
+	Write-LogMessage -MSG "PSM Logs folder returned empty" -Error -Type Debug 
 }
 $arrPSMFilePaths += (Get-FilePath "$ComponentPath\Temp\Policies.xml")
 $arrPSMFilePaths += (Get-FilePath "$ComponentPath\Temp\PVConfiguration.xml")
@@ -139,4 +139,4 @@ $arrPSMFilePaths += (Get-FilePath "$ComponentPath\basic_psm.ini")
 $arrPSMFilePaths += (Get-FilePath $PSMVaultPath)
 
 Collect-Files -arrFilesPath $arrPSMFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting PSM Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting PSM Files" -Type Debug
