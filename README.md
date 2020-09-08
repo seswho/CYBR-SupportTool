@@ -2,7 +2,7 @@
 The predecessor of CyberArk xRay to collect the logs and config files from the CyberArk EPV Windows components.
 
 ## Current Version
-v2.7
+v2.8
 
 ## Capabilities
 - Has the ability to determine the version of EPV (Enterprise Password Vault) on the Vault to find the proper locations of the logs and config files, knows if the Vault is a Standalone, HA Cluster, Distributed Vaults, or a DR Vault
@@ -16,3 +16,11 @@ v2.7
 - If the Windows server is running Replicate, collect the logs and config files
 
 ## Change Log
+
+v2.8
+- Creating shared module file
+- Moving shared functions to module
+- Changing function Log-Msg to Write-LogMessage with more options
+- Refactoring Detect.ps1 based on shared module
+- Updating Main.ps1 based on shared module
+- Hiding Load of IIS module commands in log (verbose)
