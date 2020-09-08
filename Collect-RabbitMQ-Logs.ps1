@@ -50,7 +50,7 @@ param
 # Get Script Location 
 $ScriptLocation = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-Log-Msg -MSG "Collecting RabbitMQ Files" -Type Debug
+Write-LogMessage -MSG "Collecting RabbitMQ Files" -Type Debug
 
 $arrVaultFilePaths = @()
 #
@@ -58,7 +58,7 @@ $arrVaultFilePaths = @()
 $RabbitMQPath=$ComponentPath.Replace("\erl10.2\erts-10.2\bin","").Trim()
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting RabbitMQ file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting RabbitMQ file versions and additional information" -Type Debug
 $vaultVersions = "$DestFolderPath\_RabbitMQFileVersions.txt"
 "RabbitMQ:"+$(Get-FileVersion "$ComponentPath\erlsrv.exe") | Out-File $vaultVersions
 "RabbitMQConfiguratgor:"+$(Get-FileVersion "$RabbitMQPath\RabbitMQ Configurator\RabbitMQConfigurator.exe") | Out-File $vaultVersions
@@ -71,4 +71,4 @@ $arrVaultFilePaths += (Get-FilePath "$RabbitMQPath\RabbitMQ Configurator\RabbitM
 $arrVaultFilePaths += (Get-FilePath "$RabbitMQPath\RabbitMQ Configurator\Conf\*.*")
 
 Collect-Files -arrFilesPath $arrVaultFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting Cluster Vault Manager Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting Cluster Vault Manager Files" -Type Debug

@@ -66,13 +66,13 @@ Function Get-WebConfigFromIIS
 	$iisPhysicalPath = $null
 		
 	if (Get-Module -ListAvailable -Name WebAdministration) {
-		Log-Msg -MSG "Loading WebAdministration Module..." -Type Debug
-		Import-Module WebAdministration
-		Log-Msg -MSG "WebAdministration Module loaded" -Type Debug
+		Write-LogMessage -MSG "Loading WebAdministration Module..." -Type Debug
+		Import-Module WebAdministration -Verbose:$false
+		Write-LogMessage -MSG "WebAdministration Module loaded" -Type Debug
 	}
 	else
 	{ 
-		Log-Msg -MSG "WebAdministration Module doesn't exists" -Type Debug 
+		Write-LogMessage -MSG "WebAdministration Module doesn't exists" -Type Debug 
 		return $null
 	}
 	
@@ -136,29 +136,29 @@ Function Get-IISLogs
 
 }
 
-Log-Msg -MSG "Collecting PVWA Files" -Type Debug
-Log-Msg -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage -MSG "Collecting PVWA Files" -Type Debug
+Write-LogMessage -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrPVWAFilePaths = @()
 
 # Get the PVWA Installation Path
-Log-Msg -MSG "Retrieving PVWA Log folder path from IIS" -Type Debug
+Write-LogMessage -MSG "Retrieving PVWA Log folder path from IIS" -Type Debug
 $pvwaLogFolder = $(Get-SettingFromIIS -configToFetch "LogFolder")
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting PVWA file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting PVWA file versions and additional information" -Type Debug
 $pvwaVersions = "$DestFolderPath\_PVWAFileVersions.txt"
 "PVWA: "+$(Get-FileVersion "$ComponentPath\Services\CyberArkScheduledTasks.exe") | Out-File $pvwaVersions
 "Configuration Safe: "+$(Get-SettingFromIIS -configToFetch "ConfigurationSafeName") | Out-File $pvwaVersions -append
 # Check that the logs folder is not empty
 If([string]::IsNullOrEmpty($pvwaLogFolder))
 {
-	Log-Msg -MSG "PVWA Logs folder returned empty, assuming default 'C:\Windows\Temp\PVWA'" -Type Error
+	Write-LogMessage -MSG "PVWA Logs folder returned empty, assuming default 'C:\Windows\Temp\PVWA'" -Type Error
 	$pvwaLogFolder = "C:\Windows\Temp\PVWA"
 }	
 "Log Folder: $pvwaLogFolder" | Out-File $pvwaVersions -append
 
-Log-Msg -MSG "Collecting PVWA files list by timeframe" -Type Debug
+Write-LogMessage -MSG "Collecting PVWA files list by timeframe" -Type Debug
 $arrPVWAFilePaths += $pvwaVersions
 If(Test-Path $pvwaLogFolder)
 {
@@ -177,4 +177,4 @@ $arrPVWAFilePaths += (Get-WebConfigFromIIS)
 $arrPVWAFilePaths += (Get-IISLogs)
 
 Collect-Files -arrFilesPath $arrPVWAFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting PVWA Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting PVWA Files" -Type Debug

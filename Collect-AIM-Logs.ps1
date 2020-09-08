@@ -85,19 +85,19 @@ Function Get-IniContent
     return $ini
 }
 
-Log-Msg -MSG "Collecting AIM Files" -Type Debug
-Log-Msg -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage -MSG "Collecting AIM Files" -Type Debug
+Write-LogMessage -MSG "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrAIMFilePaths = @()
 
 # Parse the AIM INI configuration file
-Log-Msg -MSG "Parsing AIM configuration file ($ComponentPath\basic_appprovider.conf)" -Type Debug
+Write-LogMessage -MSG "Parsing AIM configuration file ($ComponentPath\basic_appprovider.conf)" -Type Debug
 $AIMConf = Get-IniContent "$ComponentPath\basic_appprovider.conf"
 $AIMLogFolder = (Get-FilePath $AIMConf["Main"]["LogsFolder"].Replace('"',""))
 $AIMVaultPath = (Get-FilePath $AIMConf["Main"]["AppProviderVaultFile"].Replace('"',""))
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting AIM file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting AIM file versions and additional information" -Type Debug
 $AIMVersions = "$DestFolderPath\_AIMFileVersions.txt"
 "AIM: "+$(Get-FileVersion "$ComponentPath\AppProvider.exe") | Out-File $AIMVersions
 "Configuration Safe: "+$($AIMConf["Main"]["PIMConfigurationSafe"]) | Out-File $AIMVersions -append
@@ -105,7 +105,7 @@ $AIMVersions = "$DestFolderPath\_AIMFileVersions.txt"
 "Parameters File: "+$($AIMConf["Main"]["AppProviderVaultParmsFile"]) | Out-File $AIMVersions -append
 "Log Folder: $AIMLogFolder" | Out-File $AIMVersions -append
 
-Log-Msg -MSG "Collecting AIM files list by timeframe" -Type Debug
+Write-LogMessage -MSG "Collecting AIM files list by timeframe" -Type Debug
 $arrAIMFilePaths += $AIMVersions
 # Check that the logs folder is not empty
 If(([string]::IsNullOrEmpty($AIMLogFolder) -ne $true) -and (Test-Path $AIMLogFolder))
@@ -117,10 +117,10 @@ If(([string]::IsNullOrEmpty($AIMLogFolder) -ne $true) -and (Test-Path $AIMLogFol
 }
 else
 {
-	Log-Msg -MSG "AIM Logs folder returned empty" -Error -Type Debug 
+	Write-LogMessage -MSG "AIM Logs folder returned empty" -Error -Type Debug 
 }
 $arrAIMFilePaths += (Get-FilePath "$ComponentPath\basic_appprovider.conf")
 $arrAIMFilePaths += (Get-FilePath $AIMVaultPath)
 
 Collect-Files -arrFilesPath $arrAIMFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting AIM Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting AIM Files" -Type Debug

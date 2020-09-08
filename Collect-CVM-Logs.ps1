@@ -50,20 +50,20 @@ param
 # Get Script Location 
 $ScriptLocation = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-Log-Msg -MSG "Collecting Cluster Vault Manager Files" -Type Debug
-Log-Msg -MSG "Collecting Cluster Vault Manager logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage -MSG "Collecting Cluster Vault Manager Files" -Type Debug
+Write-LogMessage -MSG "Collecting Cluster Vault Manager logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrVaultFilePaths = @()
 
 # Create a file with the relevant file versions
-Log-Msg -MSG "Collecting Cluster Vault Manager file versions and additional information" -Type Debug
+Write-LogMessage -MSG "Collecting Cluster Vault Manager file versions and additional information" -Type Debug
 $vaultVersions = "$DestFolderPath\_ClusterVaultManagerFileVersions.txt"
 "ClusterVault:"+$(Get-FileVersion "$ComponentPath\ClusterVault.exe") | Out-File $vaultVersions
 $CVMVersion = Get-Content $DestFolderPath\_ClusterVaultManagerFileVersions.txt | Where-Object { $_.Contains("ClusterVault:") }
-Log-Msg -MSG "$CVMVersion" -Type Info
+Write-LogMessage -MSG "$CVMVersion" -Type Info
 $MyVerson = $CVMVersion.Split(":")
 $CompVer = $MyVerson[1].Replace(".","").Substring(0,4)
-Log-Msg -MSG "Collecting Cluster Vault Manager files list by timeframe" -Type Debug
+Write-LogMessage -MSG "Collecting Cluster Vault Manager files list by timeframe" -Type Debug
 $arrVaultFilePaths += $vaultVersions
 If ($CompVer -ge 1005) {
     $arrVaultFilePaths += (Get-FilePath "$ComponentPath\Conf\ClusterVault.ini")
@@ -78,4 +78,4 @@ If ($CompVer -ge 1005) {
 }
 
 Collect-Files -arrFilesPath $arrVaultFilePaths -destFolder $DestFolderPath
-Log-Msg -MSG "Done Collecting Cluster Vault Manager Files" -Type Debug
+Write-LogMessage -MSG "Done Collecting Cluster Vault Manager Files" -Type Debug

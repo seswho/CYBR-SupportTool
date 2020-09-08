@@ -77,29 +77,29 @@ Function Get-CertificateChain
     {
 		try
 		{
-			Log-Msg -Type Info -LogFile $ldapsCertificateLog -MSG "Getting Certificate Chain for server $Server"
-			Log-Msg -Type Debug -LogFile $ldapsCertificateLog -MSG "Port $port is operational to server $Server"
+			Write-LogMessage -Type Info -LogFile $ldapsCertificateLog -MSG "Getting Certificate Chain for server $Server"
+			Write-LogMessage -Type Debug -LogFile $ldapsCertificateLog -MSG "Port $port is operational to server $Server"
 			$fnValidateServerCertificate = ${Function:\ValidateServerCertificate}
 
 			$objSslStream = New-Object Net.Security.SslStream($($tcpClient.GetStream()), $False, $fnValidateServerCertificate)
 			$objSslStream.AuthenticateAsClient($Server)
 			
-			Log-Msg -Type Info -LogFile $ldapsCertificateLog -Msg "Chain verified successfully"
+			Write-LogMessage -Type Info -LogFile $ldapsCertificateLog -Msg "Chain verified successfully"
 		}
 		catch
 		{
 			Switch ($_.Exception.HResult)
 			{
-				-2146232800 { Log-Msg -Type Error -LogFile $ldapsCertificateLog -Msg "Check that the target LDAPS Host has an appropriate, valid, Certificate and the appropriate port for LDAPS was defined." }
-				-2147467259 { Log-Msg -Type Error -LogFile $ldapsCertificateLog -Msg "Check network communication between local host and target LDAPS Host. (IE Firewalls, Routing, Proxies, Port Assignment, Name Resolution, etc.)" }
-				-2146233087 { Log-Msg -Type Error -LogFile $ldapsCertificateLog -Msg "Network Communications successfully established, but could not validate Certificate or Certificate Chain due to the above Certificate Verification Errors." }
+				-2146232800 { Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -Msg "Check that the target LDAPS Host has an appropriate, valid, Certificate and the appropriate port for LDAPS was defined." }
+				-2147467259 { Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -Msg "Check network communication between local host and target LDAPS Host. (IE Firewalls, Routing, Proxies, Port Assignment, Name Resolution, etc.)" }
+				-2146233087 { Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -Msg "Network Communications successfully established, but could not validate Certificate or Certificate Chain due to the above Certificate Verification Errors." }
 			}
 			Return
         }
     }
     Else
     {
-        Log-Msg -Type Error -LogFile $ldapsCertificateLog -MSG "Port $port on $Server is closed, You may need to contact your IT team to open it."  
+        Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -MSG "Port $port on $Server is closed, You may need to contact your IT team to open it."  
     }
 }
 
@@ -112,13 +112,13 @@ Function Check-CertificateChain
             [Parameter(Mandatory=$true)]
             [string]$Port
         )
-        Log-Msg -Type Info -LogFile $ldapsCertificateLog -MSG "Opening network communication over Port: $Port in local firewall"
+        Write-LogMessage -Type Info -LogFile $ldapsCertificateLog -MSG "Opening network communication over Port: $Port in local firewall"
         New-NetFirewallRule -DisplayName "Temp_Allow_LDAPS_Delete_this_rule_if_found" -Profile "Any" -Direction Outbound -Action Allow -Protocol TCP -RemotePort $Port | Out-Null
 
-        Log-Msg -Type Info -MSG "Retrieving Certificate Chain"
+        Write-LogMessage -Type Info -MSG "Retrieving Certificate Chain"
         Get-CertificateChain -server $Server -port $Port
 
-        Log-Msg -Type Info -LogFile $ldapsCertificateLog -MSG "Closing network communication over Port: $Port in local firewall"
+        Write-LogMessage -Type Info -LogFile $ldapsCertificateLog -MSG "Closing network communication over Port: $Port in local firewall"
         Remove-NetFirewallRule -DisplayName "Temp_Allow_LDAPS_Delete_this_rule_if_found"
 }
 
@@ -134,10 +134,10 @@ Function ValidateServerCertificate
 	
 	# Output data about the certificates in the chain to the Main form console
 	$ChainEnum = $Chain.ChainElements.GetEnumerator()
-    Log-Msg -Type Info -Msg "Chain Elements found: $($Chain.ChainElements.Count)"
-	Log-Msg -Type Info -Msg "Chain Begin" -SubHeader
+    Write-LogMessage -Type Info -Msg "Chain Elements found: $($Chain.ChainElements.Count)"
+	Write-LogMessage -Type Info -Msg "Chain Begin" -SubHeader
 	For ($i=1; $i -le $Chain.ChainElements.Count; $i++) {
-		Log-Msg -Type Debug -Msg "Getting details of Element: $i"
+		Write-LogMessage -Type Debug -Msg "Getting details of Element: $i"
 		$ChainEnum.MoveNext()
 		$IsRoot = If ($ChainEnum.Current.Certificate.Extensions | Where-Object {$_.OID.FriendlyName -eq 'Authority Key Identifier'}){$false}Else{$true}
 		$CertInfoObj = [pscustomobject]@{
@@ -149,15 +149,15 @@ Function ValidateServerCertificate
 			ExpirationDate = $ChainEnum.Current.Certificate.NotAfter;
 		}
         
-		$CertInfoObj | FL | Out-String | Log-Msg -Type Info -LogFile $ldapsCertificateLog
+		$CertInfoObj | FL | Out-String | Write-LogMessage -Type Info -LogFile $ldapsCertificateLog
 	}
-	Log-Msg -Type Info -LogFile $ldapsCertificateLogo -Msg "Checking Chain StatusInformation..."
+	Write-LogMessage -Type Info -LogFile $ldapsCertificateLogo -Msg "Checking Chain StatusInformation..."
 	If ($Chain.ChainStatus.StatusInformation) {
-		Log-Msg -Type Error -LogFile $ldapsCertificateLog -Msg ($Chain.ChainStatus.StatusInformation -join '')
+		Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -Msg ($Chain.ChainStatus.StatusInformation -join '')
 	}
-	Else { Log-Msg -Type Info -LogFile $ldapsCertificateLog -Msg "No errors found" }
+	Else { Write-LogMessage -Type Info -LogFile $ldapsCertificateLog -Msg "No errors found" }
 	
-	Log-Msg -Type Info -LogFile $ldapsCertificateLog -Msg "Chain Ends" -SubHeader
+	Write-LogMessage -Type Info -LogFile $ldapsCertificateLog -Msg "Chain Ends" -SubHeader
 
 	# Check if the SslPolicy has errors, evaluate, and output to log
 	If ($SslPolicyErrors)
@@ -165,15 +165,15 @@ Function ValidateServerCertificate
 		$intSslErrorBitwise = $SslPolicyErrors
 		If ($intSslErrorBitwise -ge 4) { 
 			$intSslErrorBitwise -= 4
-			Log-Msg -Type Error -LogFile $ldapsCertificateLog -Msg "Certificate Verification Error: Remote Certificate Chain Errors. Possibly Root Certificate Authority is not trusted on this system."
+			Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -Msg "Certificate Verification Error: Remote Certificate Chain Errors. Possibly Root Certificate Authority is not trusted on this system."
 		}
 		If ($intSslErrorBitwise -ge 2) {
 			$intSslErrorBitwise -= 2
-			Log-Msg -Type Error -LogFile $ldapsCertificateLog -Msg "Certificate Verification Error: Remote Certificate Name Mismatch. Check to ensure defined LDAPS Host matches Subject or Subject Alternative Name in remote LDAPS Host's Certificate."
+			Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -Msg "Certificate Verification Error: Remote Certificate Name Mismatch. Check to ensure defined LDAPS Host matches Subject or Subject Alternative Name in remote LDAPS Host's Certificate."
 		}
 		If ($intSslErrorBitwise -ge 1) {
 			$intSslErrorBitwise -= 1
-			Log-Msg -Type Error -LogFile $ldapsCertificateLog -Msg "Certificate Verification Error: Remote Certificate not Available."
+			Write-LogMessage -Type Error -LogFile $ldapsCertificateLog -Msg "Certificate Verification Error: Remote Certificate not Available."
 		}
 		Return $False
 	}
@@ -184,7 +184,7 @@ Function Get-HostsRecords
 {
 	$hostsPath = "$env:windir\System32\drivers\etc\hosts"
 	$hostsMatches = Select-String -Path $hostsPath -Pattern '^\s{0,}((([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))\s{1,}([A-z.\-0-9]{1,})\s{0,}(?:#(\s{0,}[A-z\s]{1,})|\s{0,})$' -AllMatches | % { $_.Matches } 
-	Log-Msg -Type Info -Msg "`tFound $($hostsMatches.Count) matches"	
+	Write-LogMessage -Type Info -Msg "`tFound $($hostsMatches.Count) matches"	
 	
 	$hostsRecords = @()
 	Foreach ($match in $hostsMatches)
@@ -207,13 +207,13 @@ Function Get-HostsRecords
 # Get Script Location 
 $ScriptLocation = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-Log-Msg "Collecting Vault Files" -Type Debug
-Log-Msg "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
+Write-LogMessage "Collecting Vault Files" -Type Debug
+Write-LogMessage "Collecting logs between $TimeframeFrom to $TimeframeTo" -Type Debug
 
 $arrVaultFilePaths = @()
 
 # Create a file with the relevant file versions
-Log-Msg "Collecting Vault file versions and additional information" -Type Debug
+Write-LogMessage "Collecting Vault file versions and additional information" -Type Debug
 $vaultVersions = "$DestFolderPath\_VaultFileVersions.txt"
 $ldapsCertificateLog = "$DestFolderPath\_CertificatesValidation.log"
 "DBMain:"+$(Get-FileVersion "$ComponentPath\dbmain.exe") | Out-File $vaultVersions
@@ -222,7 +222,7 @@ $ldapsCertificateLog = "$DestFolderPath\_CertificatesValidation.log"
 $EPVVersion = Get-Content $DestFolderPath\_VaultFileVersions.txt | Where-Object { $_.Contains("DBMain:") }
 $MyVerson = $EPVVersion.Split(":")
 $CompVer = $MyVerson[1].Replace(".","").Substring(0,4)
-Log-Msg "Collecting Vault files list by timeframe" -Type Debug
+Write-LogMessage "Collecting Vault files list by timeframe" -Type Debug
 $arrVaultFilePaths += $vaultVersions
 $arrVaultFilePaths += $ldapsCertificateLog
 #
@@ -288,13 +288,13 @@ If ($CompVer -ge 1005) {
 }
 
 #region Check for LDAP certificates
-Log-Msg -Type Info -Msg "Inspecting hosts from Hosts file, searching for LDAPS addresses"
+Write-LogMessage -Type Info -Msg "Inspecting hosts from Hosts file, searching for LDAPS addresses"
 ForEach ($record in $(Get-HostsRecords))
 {
-	Log-Msg -Type Info -Msg "`tChecking $($record.DNS) ($($record.Description)) for LDAPS certificate chain validation"
+	Write-LogMessage -Type Info -Msg "`tChecking $($record.DNS) ($($record.Description)) for LDAPS certificate chain validation"
 	Check-CertificateChain -Server $record.DNS -Port 636
 }
-Log-Msg -Type Info -Msg "Finished Inspecting hosts for LDAPS certificates, please see the CertificatesValidation.log for more details"
+Write-LogMessage -Type Info -Msg "Finished Inspecting hosts for LDAPS certificates, please see the CertificatesValidation.log for more details"
 #endregion
 
 
@@ -302,4 +302,4 @@ Collect-Files -arrFilesPath $arrVaultFilePaths -destFolder $DestFolderPath
 #
 # delete the DiagnoseDBReports just generated
 Remove-Item -Force "$ComponentPath\DiagnoseDBReport_*.txt"
-Log-Msg "Done Collecting Vault Files" -Type Debug
+Write-LogMessage "Done Collecting Vault Files" -Type Debug
