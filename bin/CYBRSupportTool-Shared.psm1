@@ -926,6 +926,19 @@ Function Get-EventViewer
 Export-ModuleMember -Function Get-EventViewer
 
 # @FUNCTION@ ======================================================================================================================
+# Name...........: Test-AdminUser
+# Description....: Check if the user is a Local Admin
+# Parameters.....: None
+# Return Values..: True/False
+# =================================================================================================================================
+Function Test-AdminUser()
+{
+    $user = [Security.Principal.WindowsIdentity]::GetCurrent();
+    return (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.SecurityIdentifier] "S-1-5-32-544")  # Local Administrators group SID
+}
+Export-ModuleMember -Function Test-AdminUser
+
+# @FUNCTION@ ======================================================================================================================
 # Name...........: Detect-Components
 # Description....: Detects all CyberArk Components installed on the local server
 # Parameters.....: None
